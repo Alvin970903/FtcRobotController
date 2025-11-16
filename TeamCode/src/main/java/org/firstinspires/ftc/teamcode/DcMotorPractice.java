@@ -35,6 +35,6 @@ public class DcMotorPractice extends OpMode {
 //        else{
 //            bench.setMotorSpeed(0);
 //        }
-        telemetry.addData("Motor Revs", bench.getMotorRevs());
+        //telemetry.addData("Motor Revs", bench.getMotorRevs());
     }
 }
