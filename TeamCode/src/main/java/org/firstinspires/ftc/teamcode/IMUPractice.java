@@ -4,11 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.mechanisms.TestBench;
+import org.firstinspires.ftc.teamcode.mechanisms.TestBenchColor;
+import org.firstinspires.ftc.teamcode.mechanisms.TestBenchIMU;
 @Disabled
 @TeleOp
-public class DistanceTest extends OpMode {
-    TestBench bench = new TestBench();
+public class IMUPractice extends OpMode {
+    TestBenchIMU bench = new TestBenchIMU();
 
     @Override
     public void init() {
@@ -17,6 +18,6 @@ public class DistanceTest extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("Distance", bench.getDistance());
+        telemetry.addData("Heading", bench.getHeading());
     }
 }
