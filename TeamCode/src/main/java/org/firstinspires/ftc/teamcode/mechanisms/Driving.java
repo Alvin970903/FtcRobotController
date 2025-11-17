@@ -4,11 +4,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Driving {
-
-    public DcMotor leftFrontMotor;
-    public DcMotor leftBackMotor;
-    public DcMotor rightFrontMotor;
-    public DcMotor rightBackMotor;
+    public DcMotor leftFrontMotor, leftBackMotor;
+    public DcMotor rightFrontMotor, rightBackMotor;
 
     public void init(HardwareMap hwMap){
         leftFrontMotor  = hwMap.get(DcMotor.class, "left_front_motor");
@@ -21,21 +18,20 @@ public class Driving {
         rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        // IMPORTANT: Reverse ONE side so robot goes forward correctly
+        rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
+
         leftFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBackMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        // IMPORTANT: Reverse one side so robot drives straight
-        rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-        rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    // Drive using tank controls
-    public void drive(double leftPower, double rightPower) {
-        leftFrontMotor.setPower(leftPower);
-        leftBackMotor.setPower(leftPower);
-        rightFrontMotor.setPower(rightPower);
-        rightBackMotor.setPower(rightPower);
+    public void setPower(double left, double right){
+        leftFrontMotor.setPower(left);
+        leftBackMotor.setPower(left);
+        rightFrontMotor.setPower(right);
+        rightBackMotor.setPower(right);
     }
 }
