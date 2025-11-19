@@ -8,10 +8,10 @@ public class Driving {
     public DcMotor rightFrontMotor, rightBackMotor;
 
     public void init(HardwareMap hwMap){
-        leftFrontMotor  = hwMap.get(DcMotor.class, "left_front_motor");
-        leftBackMotor   = hwMap.get(DcMotor.class, "left_back_motor");
-        rightFrontMotor = hwMap.get(DcMotor.class, "right_front_motor");
-        rightBackMotor  = hwMap.get(DcMotor.class, "right_back_motor");
+        leftFrontMotor  = hwMap.get(DcMotor.class, "front_left_motor");
+        leftBackMotor   = hwMap.get(DcMotor.class, "back_left_motor");
+        rightFrontMotor = hwMap.get(DcMotor.class, "front_right_motor");
+        rightBackMotor  = hwMap.get(DcMotor.class, "back_right_motor");
 
         leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
