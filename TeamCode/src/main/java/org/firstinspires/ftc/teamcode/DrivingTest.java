@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.mechanisms.Driving;
 
+@Disabled
 @TeleOp
 public class DrivingTest extends OpMode {
 
@@ -31,7 +33,7 @@ public class DrivingTest extends OpMode {
         leftPower  = Math.max(-1, Math.min(1, leftPower));
         rightPower = Math.max(-1, Math.min(1, rightPower));
 
-        drive.setPower(leftPower, rightPower);
+        //drive.setPower(leftPower, rightPower);
 
         telemetry.addData("Drive", drivePower);
         telemetry.addData("Turn", turnPower);

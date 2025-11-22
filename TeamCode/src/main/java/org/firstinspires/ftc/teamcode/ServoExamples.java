@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
+@Disabled
 @TeleOp
 public class ServoExamples extends OpMode {
 
@@ -19,9 +21,9 @@ public class ServoExamples extends OpMode {
     @Override
     public void loop() {
         if (gamepad1.a) {
-            servoPos.setPosition(0.2);
-        } else {
             servoPos.setPosition(0.8);
+        } else {
+            servoPos.setPosition(0.2);
         }
 
         telemetry.addData("A Button", gamepad1.a);

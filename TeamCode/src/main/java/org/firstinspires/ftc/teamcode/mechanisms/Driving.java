@@ -28,6 +28,37 @@ public class Driving {
         rightBackMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
+
+
+    public void drive(double forward, double turn, double strafe) {
+        // Basic mecanum math
+        double fl = forward + strafe + turn;
+        double bl = forward - strafe + turn;
+        double fr = forward - strafe - turn;
+        double br = forward + strafe - turn;
+
+        // Normalize so no wheel power exceeds 1.0
+        double max = Math.max(1.0,
+                Math.max(Math.abs(fl),
+                        Math.max(Math.abs(bl),
+                                Math.max(Math.abs(fr), Math.abs(br)))));
+
+        fl /= max;
+        bl /= max;
+        fr /= max;
+        br /= max;
+
+        leftFrontMotor.setPower(fl);
+        leftBackMotor.setPower(bl);
+        rightFrontMotor.setPower(fr);
+        rightBackMotor.setPower(br);
+    }
+
+    // Optional: quick way to stop
+    public void stop() {
+        drive(0, 0, 0);
+    }
+
     public void setPower(double left, double right){
         leftFrontMotor.setPower(left);
         leftBackMotor.setPower(left);

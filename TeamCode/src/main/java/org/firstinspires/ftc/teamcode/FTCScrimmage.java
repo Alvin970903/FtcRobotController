@@ -2,19 +2,21 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Conveyor;
 import org.firstinspires.ftc.teamcode.mechanisms.Driving;
+import org.firstinspires.ftc.teamcode.mechanisms.ServoCon;
 import org.firstinspires.ftc.teamcode.mechanisms.Shooting;
+import org.firstinspires.ftc.teamcode.mechanisms.TestBenchServo;
 
 @TeleOp
 public class FTCScrimmage extends OpMode {
 
     Driving drive = new Driving();
     Conveyor conveyor = new Conveyor();
-
     Shooting shooting = new Shooting();
-
+    ServoCon servo = new ServoCon();
     boolean bumperLeftPressedLast = false;
     boolean conveyorLeftToggle = false;
     boolean bumperRightPressedLast = false;
@@ -26,28 +28,40 @@ public class FTCScrimmage extends OpMode {
         drive.init(hardwareMap);
         conveyor.init(hardwareMap);
         shooting.init(hardwareMap);
+        servo.init(hardwareMap);
     }
 
     @Override
     public void loop() {
 
-        //Driving
-        double drivePower = -gamepad1.left_stick_y;   // forward/back
-        double turnPower  =   gamepad1.right_stick_x;  // turning
+    //        //Driving
+            double drivePower = gamepad1.left_stick_y;   // forward/back
+            double turnPower  = gamepad1.right_stick_x;  // turning
 
-        double leftPower  = drivePower - turnPower;
-        double rightPower = drivePower + turnPower;
+            turnPower *= 0.3;
 
-        // Optional: speed limit
-//        double speed = 0.8;
-//        leftPower  *= speed;
-//        rightPower *= speed;
+            double leftPower  = drivePower - turnPower;
+            double rightPower = drivePower + turnPower;
 
-        // Clamp
-        leftPower  = Math.max(-1, Math.min(1, leftPower));
-        rightPower = Math.max(-1, Math.min(1, rightPower));
+            // Optional: speed limit
+    //        double speed = 0.8;
+    //        leftPower  *= speed;
+    //        rightPower *= speed;
 
-        drive.setPower(leftPower, rightPower);
+            // Clamp
+            leftPower  = Math.max(-1, Math.min(1, leftPower));
+            rightPower = Math.max(-1, Math.min(1, rightPower));
+
+            drive.setPower(leftPower, rightPower);
+
+        // strafe driving
+//        double forward = -gamepad1.left_stick_y;   // up is -1, so negate
+//        double turn    =  gamepad1.left_stick_x;
+//
+//        // Right stick X: strafing
+//        double strafe  =  gamepad1.right_stick_x;
+//
+//        drive.drive(forward, turn, strafe);
 
         //Conveyor
 //        boolean bumperLeftCurrent = gamepad1.left_bumper;
@@ -83,6 +97,8 @@ public class FTCScrimmage extends OpMode {
 //
 //        bumperRightPressedLast = bumperRightCurrent;   // update previous sta
         // Read buttons
+
+        // Conveyor work
         boolean bumperLeftCurrent  = gamepad1.left_bumper;
         boolean bumperRightCurrent = gamepad1.right_bumper;
 
@@ -121,25 +137,58 @@ public class FTCScrimmage extends OpMode {
         bumperLeftPressedLast  = bumperLeftCurrent;
         bumperRightPressedLast = bumperRightCurrent;
 
-    // Shooting
-        if(gamepad2.right_bumper){
-            shooting.setPower(1);
+    // Shooting (too strong)
+//        if(gamepad2.right_bumper){
+//            shooting.setPower(1);
+//        }
+//        else if(gamepad2.left_bumper){
+//            shooting.setPower(-0.1);
+//        }
+//        else{
+//            shooting.setPower(0);
+//        }
+//        if(gamepad2.y)
+//            shooting.setPower(0);
+//        else if(gamepad2.right_trigger >= 0)
+//            shooting.setPower(gamepad2.right_trigger);
+//        if(gamepad2.left_trigger > 0)
+//            shooting.setPower(-gamepad2.left_trigger);
+        // STOP shooter
+
+        // Shooting (need test)
+        if (gamepad2.y) {
+            shooting.setVelocityPercent(0);
         }
-        else if(gamepad2.left_bumper){
-            shooting.setPower(-0.1);
+        // FORWARD shooting (scaled)
+        else if (gamepad2.right_trigger > 0) {
+            shooting.setVelocityPercent(gamepad2.right_trigger);  // 0 → 1
         }
-        else{
-            shooting.setPower(0);
+        // REVERSE shooting
+        else if (gamepad2.left_trigger > 0) {
+            shooting.setVelocityPercent(-gamepad2.left_trigger);
+        }
+        // NO INPUT → stop
+        else {
+            shooting.setVelocityPercent(0);
         }
 
-    // Telemetry (now truly shows previous vs current if you want)
+        //servo (need test)
+        if (gamepad2.a) {
+            servo.setServoRot(-1.0);
+        } else {
+            servo.setServoRot(0);
+        }
+
+        telemetry.addData("A Button", gamepad2.a);
+
+
+        // Telemetry (now truly shows previous vs current if you want)
         telemetry.addData("Left Bumper", bumperLeftCurrent);
         telemetry.addData("Right Bumper", bumperRightCurrent);
 
-        telemetry.addData("Drive", drivePower);
-        telemetry.addData("Turn", turnPower);
-        telemetry.addData("Left", leftPower);
-        telemetry.addData("Right", rightPower);
+//        telemetry.addData("forward", forward);
+//        telemetry.addData("turn", turn);
+//        telemetry.addData("strafe", strafe);
         telemetry.update();
     }
 }

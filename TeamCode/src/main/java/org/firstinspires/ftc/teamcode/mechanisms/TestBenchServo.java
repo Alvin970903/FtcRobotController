@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class TestBenchServo {
-    private Servo servoPos;
+    public Servo servoPos;
 
     public void init(HardwareMap hwMap){
         servoPos = hwMap.get(Servo.class, "servo_pos");
