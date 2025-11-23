@@ -34,9 +34,13 @@ public class Auto extends LinearOpMode {
         waitForStart();
 
         drive.drive(-1, 0, 0);
-        sleep(2000);
+        sleep(400);
         drive.drive(0, 0, 0);
-        shooting.setPower(1);
+//        shooting.setPower(1);
+//        conveyor.setPower(1);
+//        sleep(2000);
+//        shooting.setPower(0);
+//        conveyor.setPower(0);
 
 
     }

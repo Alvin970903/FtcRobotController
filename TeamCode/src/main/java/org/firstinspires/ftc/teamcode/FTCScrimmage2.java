@@ -164,21 +164,21 @@ public class FTCScrimmage2 extends OpMode {
             }
         }
         // Decide final power once, based on both toggles
-        double shootingPower = 0;
-        //double shootingPercent = 0;
+        //double shootingPower = 0;
+        double shootingPercent = 0;
         if (shootingLeftToggle && !shootingRightToggle) {
-            shootingPower = 1;
-            // shootingPercent = 0.7;
+            //shootingPower = 1
+            shootingPercent = 0.1;
         } else if (shootingRightToggle && !shootingLeftToggle) {
-            shootingPower = -1;
-            // shootingPercent = -0.7;
+            //shootingPower = -1;
+            shootingPercent = -0.85;
         } else {
-            shootingPower = 0;
-            // shootingPercent = 0.0;
+            //shootingPower = 0;
+            shootingPercent = 0.0;
         }
-        shooting.setPower(shootingPower);
-        // shooting.setVelocityPercent(shootingPercent);
-        
+        //shooting.setPower(shootingPower);
+        shooting.setVelocityPercent(shootingPercent);
+
         // Update "last" states
         triggerLeftPressedLast  = triggerLeftCurrent;
         triggerRightPressedLast = triggerRightCurrent;

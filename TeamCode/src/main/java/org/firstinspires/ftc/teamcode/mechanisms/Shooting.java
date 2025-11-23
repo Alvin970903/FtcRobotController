@@ -27,7 +27,7 @@ public class Shooting {
 
     // The maximum ticks per second for 6000 RPM motors
     // 6000 RPM = 2800 ticks/sec (28 TPR motors)
-    private static final double MAX_TICKS_PER_SECOND = 2800;
+    private static final double MAX_TICKS_PER_SECOND = 7000;
 
     public void init(HardwareMap hwMap){
         shootingMotor1 = hwMap.get(DcMotorEx.class, "shooting_motor1");
