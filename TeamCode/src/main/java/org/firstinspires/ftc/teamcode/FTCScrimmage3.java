@@ -87,7 +87,5 @@ public class FTCScrimmage3 extends OpMode {
         bumperLeftPressedLast  = bumperLeftCurrent;
         bumperRightPressedLast = bumperRightCurrent;
 
-        //Servo
-
     }
 }
