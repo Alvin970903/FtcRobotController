@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Conveyor;
 import org.firstinspires.ftc.teamcode.mechanisms.Intake;
+import org.firstinspires.ftc.teamcode.mechanisms.IntakeShooting;
 import org.firstinspires.ftc.teamcode.mechanisms.ServoCon;
 import org.firstinspires.ftc.teamcode.mechanisms.ServoPos;
 import org.firstinspires.ftc.teamcode.mechanisms.Shooting;
@@ -25,7 +26,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.StrafeDriving;
 @TeleOp
 public class FTCScrimmage3 extends OpMode {
     StrafeDriving drive = new StrafeDriving();
-    Shooting shooting = new Shooting();
+    IntakeShooting shooting = new IntakeShooting();
+
 
     // shooting
     boolean bumperLeftPressedLast = false;
@@ -38,7 +40,6 @@ public class FTCScrimmage3 extends OpMode {
     public void init() {
         drive.init(hardwareMap);
         shooting.init(hardwareMap);
-        shooting.stopAll();   // forces everything OFF at INIT
     }
 
     @Override
@@ -82,7 +83,7 @@ public class FTCScrimmage3 extends OpMode {
         } else {
             shootingPower = 0;
         }
-        shooting.setPower(shootingPower);
+        shooting.intakeShoot(shootingPower);
         // Update "last" states
         bumperLeftPressedLast  = bumperLeftCurrent;
         bumperRightPressedLast = bumperRightCurrent;
