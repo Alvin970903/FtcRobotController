@@ -13,9 +13,11 @@ public class IntakeShooting {
     //private static final double MAX_POWER = 0.7;
 
     // goBILDA 312 RPM: ~537.6 ticks per rev
-    private static final double TICKS_PER_REV = 537.6;
-    private static final double MAX_RPM       = 312.0;
-    private static final double MAX_TPS       = MAX_RPM / 60.0 * TICKS_PER_REV;  // ≈ 2800
+    // 6000 RPM motor
+    private static final double TICKS_PER_REV = 28.0;     // encoder ticks per output shaft rev
+    private static final double MAX_RPM       = 6000.0;
+    private static final double MAX_TPS       = (MAX_RPM / 60.0) * TICKS_PER_REV;   // ≈ 2800
+
 
     public void init(HardwareMap hwMap){
         shootingMotor1 = hwMap.get(DcMotorEx.class, "shooting_motor1");
@@ -44,7 +46,7 @@ public class IntakeShooting {
         }
 
         else if(power > 0){
-            double target  = MAX_TPS * 0.7;
+            double target  = MAX_TPS * 0.4;
             shootingMotor1.setVelocity(target);
             shootingMotor2.setVelocity(target);
 
@@ -52,19 +54,15 @@ public class IntakeShooting {
         }
 
         else {
-            double target = -(MAX_TPS * 0.4);
+            double target = -(MAX_TPS * 0.6);
             shootingMotor1.setVelocity(target);
             shootingMotor2.setVelocity(target);
 
             intakeMotor.setPower(-1);
         }
     }
-//    public void setPower(double power){
-//        double shooterPower = Math.max(-MAX_POWER, Math.min(MAX_POWER, power));
-//
-//        shootingMotor1.setPower(shooterPower);
-//        shootingMotor2.setPower(shooterPower);
-//        intakeMotor.setPower(power);
-//    }
 
+    public void stop(){
+        intakeShoot(0);
+    }
 }

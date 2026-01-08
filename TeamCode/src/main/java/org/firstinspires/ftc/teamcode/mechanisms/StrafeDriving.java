@@ -51,4 +51,8 @@ public class StrafeDriving {
         backRightMotor.setPower(br);
     }
 
+    public void stop(){
+        drive(0, 0, 0);
+    }
+
 }

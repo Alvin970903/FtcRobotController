@@ -88,5 +88,11 @@ public class FTCScrimmage3 extends OpMode {
         bumperLeftPressedLast  = bumperLeftCurrent;
         bumperRightPressedLast = bumperRightCurrent;
 
+
+        // failsafe
+        if (gamepad1.start && gamepad1.back) {
+            drive.stop();
+            shooting.stop();
+        }
     }
 }
