@@ -20,7 +20,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.StrafeDriving;
 
 // expansion 0 front left
 // expansion 1 back left
-// expansion 2 conveyor (no need)
 // expansion 3 back up shooting
 
 @TeleOp

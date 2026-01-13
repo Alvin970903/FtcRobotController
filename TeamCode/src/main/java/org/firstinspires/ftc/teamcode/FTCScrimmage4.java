@@ -24,10 +24,10 @@ public class FTCScrimmage4 extends OpMode {
     private boolean aLast = false;
     private boolean bLast = false;
 
-    // Spin-up gating for intake (pause intake until shooter ready)
+    // Spin-up gating for intake
     private final ElapsedTime spinTimer = new ElapsedTime();
-    private static final double MIN_SPINUP_TIME_SEC = 0.30;  // baseline delay
-    private static final double SPEED_READY_RATIO   = 0.90;  // 90% of target
+    private static final double MIN_SPINUP_TIME_SEC = 0.30;
+    private static final double SPEED_READY_RATIO   = 0.90;
 
     @Override
     public void init() {
@@ -49,8 +49,8 @@ public class FTCScrimmage4 extends OpMode {
         boolean aNow = gamepad2.a;
         boolean bNow = gamepad2.b;
 
-        if (aNow && !aLast) shooting.increaseShooterPercent(); // +10% per tap
-        if (bNow && !bLast) shooting.decreaseShooterPercent(); // -10% per tap
+        if (aNow && !aLast) shooting.increaseShooterPercent();
+        if (bNow && !bLast) shooting.decreaseShooterPercent();
 
         aLast = aNow;
         bLast = bNow;
@@ -59,58 +59,45 @@ public class FTCScrimmage4 extends OpMode {
         boolean lbNow = gamepad2.left_bumper;
         boolean rbNow = gamepad2.right_bumper;
 
-        // Toggle forward
-        if (lbNow && !lbLast) {
+        // ✅ RIGHT bumper = FORWARD shooting
+        if (rbNow && !rbLast) {
             boolean wasOff = (!forwardOn && !reverseOn);
             forwardOn = !forwardOn;
             if (forwardOn) reverseOn = false;
 
-            // Start spin-up timing only when turning ON from OFF
             if (wasOff && forwardOn) spinTimer.reset();
         }
 
-        // Toggle reverse
-        if (rbNow && !rbLast) {
-            boolean wasOff = (!forwardOn && !reverseOn);
+        // ✅ LEFT bumper = REVERSE (unjam)
+        if (lbNow && !lbLast) {
             reverseOn = !reverseOn;
             if (reverseOn) forwardOn = false;
-
-            if (wasOff && reverseOn) spinTimer.reset();
         }
 
         lbLast = lbNow;
         rbLast = rbNow;
 
-        // Apply shooter mode + ensure intake off when fully off
+        // ---------------- Apply shooter + intake behavior ----------------
         if (forwardOn) {
             shooting.setShooterMode(IntakeShooting2.ShooterMode.FORWARD);
         } else if (reverseOn) {
             shooting.setShooterMode(IntakeShooting2.ShooterMode.REVERSE);
+            shooting.intakeReverse(); // immediate unjam
         } else {
             shooting.setShooterMode(IntakeShooting2.ShooterMode.OFF);
             shooting.stopIntake();
         }
 
-        // ---------------- Intake gating (pause intake during spin-up) ----------------
-        if (shooting.getShooterMode() != IntakeShooting2.ShooterMode.OFF) {
+        // ---------------- Forward-only intake gating ----------------
+        if (shooting.getShooterMode() == IntakeShooting2.ShooterMode.FORWARD) {
             boolean timeReady = spinTimer.seconds() >= MIN_SPINUP_TIME_SEC;
 
-            double target = shooting.getTargetSpeedAbsTPS();
+            double target  = shooting.getTargetSpeedAbsTPS();
             double current = shooting.getShooterSpeedAbsTPS();
             boolean speedReady = (target > 0) && (current >= target * SPEED_READY_RATIO);
 
-            // Strict gating: require BOTH time and speed
-            boolean readyToFeed = timeReady && speedReady;
-
-            if (readyToFeed) {
-                if (shooting.getShooterMode() == IntakeShooting2.ShooterMode.FORWARD) {
-                    shooting.intakeForward();
-                } else {
-                    shooting.intakeReverse();
-                }
-            } else {
-                shooting.stopIntake();
-            }
+            if (timeReady && speedReady) shooting.intakeForward();
+            else shooting.stopIntake();
         }
 
         // ---------------- Failsafe ----------------
@@ -121,8 +108,8 @@ public class FTCScrimmage4 extends OpMode {
 
         // ---------------- Telemetry ----------------
         telemetry.addData("ShooterMode", shooting.getShooterMode());
-        telemetry.addData("Shooter %", "%.0f%%", shooting.getShooterPercent() * 100.0);
-        telemetry.addData("Target TPS", "%.0f", shooting.getTargetSpeedAbsTPS());
+        telemetry.addData("Shooter % (forward)", "%.0f%%", shooting.getShooterPercent() * 100.0);
+        telemetry.addData("Forward Target TPS", "%.0f", shooting.getTargetSpeedAbsTPS());
         telemetry.addData("Current TPS", "%.0f", shooting.getShooterSpeedAbsTPS());
         telemetry.addData("SpinTime (s)", "%.2f", spinTimer.seconds());
         telemetry.update();

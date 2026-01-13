@@ -1,4 +1,3 @@
-// IntakeShooting2.java
 package org.firstinspires.ftc.teamcode.mechanisms;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -23,7 +22,7 @@ public class IntakeShooting2 {
     private double shooterPercent = 0.70;     // default 70% (forward only)
     private static final double STEP = 0.10;  // 10% per tap
 
-    // Fixed REVERSE percent requirement
+    // Fixed REVERSE percent (unjam only)
     private static final double REVERSE_PERCENT = 0.40; // 40% of max velocity
 
     private ShooterMode shooterMode = ShooterMode.OFF;
@@ -38,6 +37,7 @@ public class IntakeShooting2 {
 
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        // Reverse one shooter motor so both wheels spin same physical direction
         shootingMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         shootingMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -78,15 +78,9 @@ public class IntakeShooting2 {
         return shooterMode;
     }
 
+    // Forward-only target (for forward gating + telemetry)
     public double getTargetSpeedAbsTPS() {
-        switch (shooterMode) {
-            case FORWARD:
-                return shooterPercent * MAX_TPS;
-            case REVERSE:
-                return REVERSE_PERCENT * MAX_TPS;
-            default:
-                return 0.0;
-        }
+        return shooterPercent * MAX_TPS;
     }
 
     private void applyShooterVelocity() {
@@ -97,15 +91,17 @@ public class IntakeShooting2 {
                 break;
             }
             case FORWARD: {
+                // CHANGED: invert sign so "FORWARD" matches physical forward shooting
                 double targetAbsTPS = shooterPercent * MAX_TPS;
-                shootingMotor1.setVelocity(targetAbsTPS);
-                shootingMotor2.setVelocity(targetAbsTPS);
+                shootingMotor1.setVelocity(-targetAbsTPS);
+                shootingMotor2.setVelocity(-targetAbsTPS);
                 break;
             }
             case REVERSE: {
+                // CHANGED: invert sign so "REVERSE" matches physical reverse (unjam)
                 double targetAbsTPS = REVERSE_PERCENT * MAX_TPS;
-                shootingMotor1.setVelocity(-targetAbsTPS);
-                shootingMotor2.setVelocity(-targetAbsTPS);
+                shootingMotor1.setVelocity(targetAbsTPS);
+                shootingMotor2.setVelocity(targetAbsTPS);
                 break;
             }
         }
@@ -117,11 +113,13 @@ public class IntakeShooting2 {
 
     // Intake control
     public void intakeForward() {
-        intakeMotor.setPower(1.0);
+        // CHANGED: invert sign so intake "forward feed" matches physical direction
+        intakeMotor.setPower(-1.0);
     }
 
     public void intakeReverse() {
-        intakeMotor.setPower(-1.0);
+        // CHANGED: invert sign so intake "reverse unjam" matches physical direction
+        intakeMotor.setPower(1.0);
     }
 
     public void stopIntake() {
