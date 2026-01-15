@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -9,6 +10,7 @@ public class IntakeShooting {
     private DcMotorEx shootingMotor1;
     private DcMotorEx shootingMotor2;
     public DcMotor intakeMotor;
+    private CRServo servoRot;
 
     //private static final double MAX_POWER = 0.7;
 
@@ -23,6 +25,7 @@ public class IntakeShooting {
         shootingMotor1 = hwMap.get(DcMotorEx.class, "shooting_motor1");
         shootingMotor2 = hwMap.get(DcMotorEx.class, "shooting_motor2");
         intakeMotor = hwMap.get(DcMotor.class, "intake_motor");
+        servoRot = hwMap.get(CRServo.class, "servo_con");
 
         // Use encoders so velocity control works
         shootingMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

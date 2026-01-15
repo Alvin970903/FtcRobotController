@@ -5,28 +5,22 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Disabled
+import org.firstinspires.ftc.teamcode.mechanisms.ServoCon;
+
+
 @TeleOp
 public class ServoExamples extends OpMode {
 
-    private Servo servoPos;
+    private ServoCon servoCon;
 
     @Override
     public void init() {
-        servoPos = hardwareMap.get(Servo.class, "servo_pos");
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
+        servoCon = new ServoCon();
+        servoCon.init(hardwareMap);
     }
 
     @Override
     public void loop() {
-        if (gamepad1.a) {
-            servoPos.setPosition(0.8);
-        } else {
-            servoPos.setPosition(0.2);
-        }
-
-        telemetry.addData("A Button", gamepad1.a);
-        telemetry.update();
+        servoCon.setServoRot(1.0);
     }
 }
