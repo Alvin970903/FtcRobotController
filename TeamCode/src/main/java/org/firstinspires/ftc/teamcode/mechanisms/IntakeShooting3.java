@@ -15,22 +15,23 @@ public class IntakeShooting3 {
     // top flywheel    = shooting_motor_2
     private DcMotorEx shootingMotor1; // bottom
     private DcMotorEx shootingMotor2; // top
+
     private DcMotor intakeMotor;
     private CRServo servoRot;
 
     private static final double TICKS_PER_REV = 28.0;
     private static final double MAX_RPM = 6000.0;
-    private static final double MAX_TPS = (MAX_RPM / 60.0) * TICKS_PER_REV; // ~2800 tps
+    private static final double MAX_TPS = (MAX_RPM / 60.0) * TICKS_PER_REV;
 
     // A/B controls BOTTOM wheel percent
-    private double bottomPercent = 0.70;
-    private static final double STEP = 0.10;
+    private double bottomPercent = 0.35;      // default (you said working percent is 35%)
+    private static final double STEP = 0.05;  // 5% per tap
 
     // Top is a fixed ratio of bottom
-    private static final double TOP_RATIO = 0.65; // top = 65% of bottom
+    private static final double TOP_RATIO = 0.65;
 
     // Reverse fixed (unjam)
-    private static final double REVERSE_PERCENT = 0.40;
+    private static final double REVERSE_PERCENT = 0.10;
 
     private ShooterMode shooterMode = ShooterMode.OFF;
 
@@ -88,7 +89,7 @@ public class IntakeShooting3 {
         return shooterMode;
     }
 
-    // ---------- NEW: per-wheel targets/actuals for "gate both wheels" ----------
+    // Per-wheel targets/actuals for gating + telemetry
     public double getBottomTargetTPS() {
         return getBottomPercent() * MAX_TPS;
     }
@@ -104,7 +105,6 @@ public class IntakeShooting3 {
     public double getTopActualTPS() {
         return Math.abs(shootingMotor2.getVelocity());
     }
-    // -------------------------------------------------------------------------
 
     private void applyShooterVelocity() {
         switch (shooterMode) {
@@ -131,23 +131,39 @@ public class IntakeShooting3 {
         }
     }
 
-    public void intakeForward() {
+    // ---------------- Intake / Servo control (split) ----------------
+    // Gamepad1 wants intake ONLY (no servo)
+    public void intakeOnlyForward() {
+        intakeMotor.setPower(-1.0);
+    }
+
+    public void intakeOnlyReverse() {
+        intakeMotor.setPower(1.0);
+    }
+
+    public void stopIntakeOnly() {
+        intakeMotor.setPower(0.0);
+    }
+
+    // Gamepad2 shooting wants intake + servo together
+    public void feedForward() {
         intakeMotor.setPower(-1.0);
         servoRot.setPower(1.0);
     }
 
-    public void intakeReverse() {
+    public void feedReverse() {
         intakeMotor.setPower(1.0);
         servoRot.setPower(-1.0);
     }
 
-    public void stopIntake() {
+    public void stopFeed() {
         intakeMotor.setPower(0.0);
         servoRot.setPower(0.0);
     }
+    // ---------------------------------------------------------------
 
     public void stopAll() {
         setShooterMode(ShooterMode.OFF);
-        stopIntake();
+        stopFeed();
     }
 }
