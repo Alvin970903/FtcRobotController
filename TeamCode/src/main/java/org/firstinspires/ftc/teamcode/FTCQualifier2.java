@@ -172,17 +172,17 @@ public class FTCQualifier2 extends OpMode {
         telemetry.addData("ShooterMode", shooting.getShooterMode());
         telemetry.addData("IntakeOnly", g1IntakeForwardOn ? "FORWARD" : (g1IntakeReverseOn ? "REVERSE" : "OFF"));
 
-        telemetry.addData("Bottom %", "%.0f%%", shooting.getBottomPercent() * 100.0);
-        telemetry.addData("Top %", "%.0f%%", shooting.getTopPercent() * 100.0);
+        telemetry.addData("Bottom flywheel %", "%.0f%%", shooting.getBottomPercent() * 100.0);
+        telemetry.addData("Top flywheel %", "%.0f%%", shooting.getTopPercent() * 100.0);
 
-        telemetry.addData("Bottom TPS", "%.0f / %.0f", shooting.getBottomActualTPS(), shooting.getBottomTargetTPS());
-        telemetry.addData("Top TPS", "%.0f / %.0f", shooting.getTopActualTPS(), shooting.getTopTargetTPS());
+        telemetry.addData("Bottom flywheel TPS", "%.0f / %.0f", shooting.getBottomActualTPS(), shooting.getBottomTargetTPS());
+        telemetry.addData("Top flywheel TPS", "%.0f / %.0f", shooting.getTopActualTPS(), shooting.getTopTargetTPS());
 
         telemetry.addData("PIDF Bottom (P/F)", "%.1f / %.1f", shooting.getBotP(), shooting.getBotF());
         telemetry.addData("PIDF Top (P/F)", "%.1f / %.1f", shooting.getTopP(), shooting.getTopF());
 
-        telemetry.addData("SpinTime", "%.2f", spinTimer.seconds());
-        telemetry.addData("SettleTime", "%.2f", settleTimer.seconds());
+        //telemetry.addData("SpinTime", "%.2f", spinTimer.seconds());
+        //telemetry.addData("SettleTime", "%.2f", settleTimer.seconds());
         telemetry.update();
     }
 }
