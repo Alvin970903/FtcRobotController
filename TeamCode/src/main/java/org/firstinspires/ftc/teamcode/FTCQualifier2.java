@@ -1,18 +1,18 @@
-// FTCQualifier.java
+// FTCQualifier2.java
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.mechanisms.IntakeShooting3;
+import org.firstinspires.ftc.teamcode.mechanisms.IntakeShooting4;
 import org.firstinspires.ftc.teamcode.mechanisms.StrafeDriving;
 
 @TeleOp
-public class FTCQualifier extends OpMode {
+public class FTCQualifier2 extends OpMode {
 
     private final StrafeDriving drive = new StrafeDriving();
-    private final IntakeShooting3 shooting = new IntakeShooting3();
+    private final IntakeShooting4 shooting = new IntakeShooting4();
 
     // gamepad2 shooter toggles (tap)
     private boolean g2lbLast = false;
@@ -20,9 +20,8 @@ public class FTCQualifier extends OpMode {
     private boolean forwardOn = false;
     private boolean reverseOn = false;
 
-    // gamepad2 percent tuning (tap)
-    private boolean aLast = false;
-    private boolean bLast = false;
+    // gamepad2 shot mode toggle (tap)
+    private boolean backLast = false;
 
     // gamepad1 intake-only toggles (tap)
     private boolean g1lbLast = false;
@@ -30,27 +29,16 @@ public class FTCQualifier extends OpMode {
     private boolean g1IntakeForwardOn = false;
     private boolean g1IntakeReverseOn = false;
 
-    // spin-up + settle gating
+    // spin-up + settle gating (simple, no separate ratios)
     private final ElapsedTime spinTimer = new ElapsedTime();
     private static final double MIN_SPINUP_TIME_SEC = 0.30;
 
     private static final double LOW_RATIO  = 0.95;
-    private static final double HIGH_RATIO = 1.1;
+    private static final double HIGH_RATIO = 1.10;
     private static final double SETTLE_SEC = 0.15;
 
     private final ElapsedTime settleTimer = new ElapsedTime();
     private boolean inWindowLast = false;
-
-    // Gating ratios (separate) - helps when bottom is weaker
-    private static final double TOP_READY_RATIO = 0.90;
-    private static final double BOT_READY_RATIO = 0.90;
-
-    // PIDF tuning controls (gamepad2)
-    // Y = switch wheel (TOP/BOTTOM)
-    // X = switch gain (F/P)
-    // DPAD_UP/DOWN = step size
-    // DPAD_RIGHT/LEFT = +/- selected gain
-    private boolean xLast=false, yLast=false, duLast=false, ddLast=false, drLast=false, dlLast=false;
 
     @Override
     public void init() {
@@ -60,7 +48,7 @@ public class FTCQualifier extends OpMode {
 
     @Override
     public void loop() {
-        // Driving
+        // ---------------- Driving ----------------
         double throttle = gamepad1.left_stick_y;
         double spin     = -gamepad1.right_stick_x;
         double strafe   = -gamepad1.left_stick_x;
@@ -68,39 +56,17 @@ public class FTCQualifier extends OpMode {
         spin *= 0.3;
         drive.drive(throttle, spin, strafe);
 
-        // ---------------- PIDF tuning (gamepad2) ----------------
-        boolean xNow = gamepad2.x;
-        boolean yNow = gamepad2.y;
-        boolean duNow = gamepad2.dpad_up;
-        boolean ddNow = gamepad2.dpad_down;
-        boolean drNow = gamepad2.dpad_right;
-        boolean dlNow = gamepad2.dpad_left;
+        // ---------------- gamepad2 shot mode toggle ----------------
+        boolean backNow = gamepad2.back;
+        if (backNow && !backLast) {
+            shooting.toggleShotMode();
+        }
+        backLast = backNow;
 
-        if (yNow && !yLast) shooting.cycleSelectedWheel();
-        if (xNow && !xLast) shooting.cycleSelectedGain();
-        if (duNow && !duLast) shooting.stepUp();
-        if (ddNow && !ddLast) shooting.stepDown();
-        if (drNow && !drLast) shooting.gainPlus();
-        if (dlNow && !dlLast) shooting.gainMinus();
+        // ---------------- gamepad2 shooter toggles ----------------
+        boolean g2lbNow = gamepad2.left_bumper;   // LB = reverse unjam toggle
+        boolean g2rbNow = gamepad2.right_bumper;  // RB = forward shoot toggle
 
-        xLast = xNow; yLast = yNow;
-        duLast = duNow; ddLast = ddNow;
-        drLast = drNow; dlLast = dlNow;
-        // --------------------------------------------------------
-
-        // gamepad2 A/B percent tuning
-        boolean aNow = gamepad2.a;
-        boolean bNow = gamepad2.b;
-        if (aNow && !aLast) shooting.increaseShooterPercent();
-        if (bNow && !bLast) shooting.decreaseShooterPercent();
-        aLast = aNow;
-        bLast = bNow;
-
-        // gamepad2 shooter toggles
-        boolean g2lbNow = gamepad2.left_bumper;
-        boolean g2rbNow = gamepad2.right_bumper;
-
-        // RB = forward shoot toggle
         if (g2rbNow && !g2rbLast) {
             boolean wasOff = (!forwardOn && !reverseOn);
             forwardOn = !forwardOn;
@@ -108,19 +74,16 @@ public class FTCQualifier extends OpMode {
 
             if (wasOff && forwardOn) {
                 spinTimer.reset();
+                settleTimer.reset();
+                inWindowLast = false;
 
                 // Cancel gamepad1 intake toggles so preloading can't accidentally feed
                 g1IntakeForwardOn = false;
                 g1IntakeReverseOn = false;
                 shooting.stopIntakeOnly();
-
-                // Reset settle logic
-                settleTimer.reset();
-                inWindowLast = false;
             }
         }
 
-        // LB = reverse unjam toggle
         if (g2lbNow && !g2lbLast) {
             reverseOn = !reverseOn;
             if (reverseOn) forwardOn = false;
@@ -130,14 +93,14 @@ public class FTCQualifier extends OpMode {
         g2rbLast = g2rbNow;
 
         // Apply shooter mode
-        if (forwardOn) shooting.setShooterMode(IntakeShooting3.ShooterMode.FORWARD);
-        else if (reverseOn) shooting.setShooterMode(IntakeShooting3.ShooterMode.REVERSE);
-        else shooting.setShooterMode(IntakeShooting3.ShooterMode.OFF);
+        if (forwardOn) shooting.setShooterMode(IntakeShooting4.ShooterMode.FORWARD);
+        else if (reverseOn) shooting.setShooterMode(IntakeShooting4.ShooterMode.REVERSE);
+        else shooting.setShooterMode(IntakeShooting4.ShooterMode.OFF);
 
-        // Shooter feeding control (servo tied to shooting)
+        // ---------------- Shooter feeding control ----------------
         boolean shooterFeedingThisLoop = false;
 
-        if (shooting.getShooterMode() == IntakeShooting3.ShooterMode.FORWARD) {
+        if (shooting.getShooterMode() == IntakeShooting4.ShooterMode.FORWARD) {
             boolean timeReady = spinTimer.seconds() >= MIN_SPINUP_TIME_SEC;
 
             double topTarget = shooting.getTopTargetTPS();
@@ -146,11 +109,11 @@ public class FTCQualifier extends OpMode {
             double botNow = shooting.getBottomActualTPS();
 
             boolean topInWindow = topTarget > 0 &&
-                    topNow >= topTarget * TOP_READY_RATIO &&
+                    topNow >= topTarget * LOW_RATIO &&
                     topNow <= topTarget * HIGH_RATIO;
 
             boolean botInWindow = botTarget > 0 &&
-                    botNow >= botTarget * BOT_READY_RATIO &&
+                    botNow >= botTarget * LOW_RATIO &&
                     botNow <= botTarget * HIGH_RATIO;
 
             boolean inWindowNow = timeReady && topInWindow && botInWindow;
@@ -172,23 +135,25 @@ public class FTCQualifier extends OpMode {
 
             inWindowLast = inWindowNow;
 
-        } else if (shooting.getShooterMode() == IntakeShooting3.ShooterMode.REVERSE) {
-            shooting.feedReverse();
+        } else if (shooting.getShooterMode() == IntakeShooting4.ShooterMode.REVERSE) {
+            shooting.feedReverse(); // immediate unjam feed
             shooterFeedingThisLoop = true;
         } else {
             shooting.stopFeed();
         }
 
-        // gamepad1 intake-only TOGGLE (only if shooter not feeding)
+        // ---------------- gamepad1 intake-only TOGGLE ----------------
         if (!shooterFeedingThisLoop) {
             boolean g1lbNow = gamepad1.left_bumper;
             boolean g1rbNow = gamepad1.right_bumper;
 
+            // RB = toggle intake forward (no servo)
             if (g1rbNow && !g1rbLast) {
                 g1IntakeForwardOn = !g1IntakeForwardOn;
                 if (g1IntakeForwardOn) g1IntakeReverseOn = false;
             }
 
+            // LB = toggle intake reverse (no servo)
             if (g1lbNow && !g1lbLast) {
                 g1IntakeReverseOn = !g1IntakeReverseOn;
                 if (g1IntakeReverseOn) g1IntakeForwardOn = false;
@@ -202,25 +167,22 @@ public class FTCQualifier extends OpMode {
             g1rbLast = g1rbNow;
         }
 
-        // Telemetry
-        telemetry.addData("Mode", shooting.getShooterMode());
+        // ---------------- Telemetry ----------------
+        telemetry.addData("ShotMode", shooting.getShotMode());
+        telemetry.addData("ShooterMode", shooting.getShooterMode());
         telemetry.addData("IntakeOnly", g1IntakeForwardOn ? "FORWARD" : (g1IntakeReverseOn ? "REVERSE" : "OFF"));
 
         telemetry.addData("Bottom %", "%.0f%%", shooting.getBottomPercent() * 100.0);
-        telemetry.addData("Top % (ratio)", "%.0f%%", shooting.getTopPercent() * 100.0);
+        telemetry.addData("Top %", "%.0f%%", shooting.getTopPercent() * 100.0);
 
         telemetry.addData("Bottom TPS", "%.0f / %.0f", shooting.getBottomActualTPS(), shooting.getBottomTargetTPS());
         telemetry.addData("Top TPS", "%.0f / %.0f", shooting.getTopActualTPS(), shooting.getTopTargetTPS());
 
-        telemetry.addData("SpinTime (s)", "%.2f", spinTimer.seconds());
-        telemetry.addData("Settled (s)", "%.2f", settleTimer.seconds());
+        telemetry.addData("PIDF Bottom (P/F)", "%.1f / %.1f", shooting.getBotP(), shooting.getBotF());
+        telemetry.addData("PIDF Top (P/F)", "%.1f / %.1f", shooting.getTopP(), shooting.getTopF());
 
-        telemetry.addData("Tune Wheel", shooting.getSelectedWheelName());
-        telemetry.addData("Tune Gain", shooting.getSelectedGainName());
-        telemetry.addData("Step", "%.3f", shooting.getStepSize());
-        telemetry.addData("Bot kP/kF", "%.3f / %.3f", shooting.getBotP(), shooting.getBotF());
-        telemetry.addData("Top kP/kF", "%.3f / %.3f", shooting.getTopP(), shooting.getTopF());
-
+        telemetry.addData("SpinTime", "%.2f", spinTimer.seconds());
+        telemetry.addData("SettleTime", "%.2f", settleTimer.seconds());
         telemetry.update();
     }
 }

@@ -6,9 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-public class IntakeShooting3 {
+public class IntakeShootingX {
 
     public enum ShooterMode { OFF, FORWARD, REVERSE }
 
@@ -25,8 +24,8 @@ public class IntakeShooting3 {
     private static final double MAX_TPS = (MAX_RPM / 60.0) * TICKS_PER_REV;
 
     // A/B controls BOTTOM wheel percent
-    private double bottomPercent = 0.35;
-    private static final double STEP = 0.05;
+    private double bottomPercent = 0.35;      // default (you said working percent is 35%)
+    private static final double STEP = 0.05;  // 5% per tap
 
     // Top is a fixed ratio of bottom
     private static final double TOP_RATIO = 0.65;
@@ -35,21 +34,6 @@ public class IntakeShooting3 {
     private static final double REVERSE_PERCENT = 0.10;
 
     private ShooterMode shooterMode = ShooterMode.OFF;
-
-    // ---------------- PIDF tuning state (PER MOTOR) ----------------
-    private enum Wheel { TOP, BOTTOM }
-    private enum Gain  { P, F }
-
-    private Wheel selectedWheel = Wheel.BOTTOM;
-    private Gain  selectedGain  = Gain.F;
-
-    private static final double[] STEP_SIZES = {10.0, 1.0, 0.1, 0.01, 0.001};
-    private int stepIndex = 1; // 1.0
-
-    // Separate gains
-    private double botP = 8.0, botI = 0.0, botD = 0.0, botF = 12.0;
-    private double topP = 8.0, topI = 0.0, topD = 0.0, topF = 12.0;
-    // ---------------------------------------------------------------
 
     public void init(HardwareMap hwMap) {
         shootingMotor1 = hwMap.get(DcMotorEx.class, "shooting_motor1");
@@ -68,66 +52,8 @@ public class IntakeShooting3 {
         shootingMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        applyVelocityPIDF(); // NEW: applies per-wheel PIDF
         stopAll();
     }
-
-    // ---------------- PIDF public API (TeleOp will call these) ----------------
-    public void cycleSelectedWheel() {
-        selectedWheel = (selectedWheel == Wheel.BOTTOM) ? Wheel.TOP : Wheel.BOTTOM;
-    }
-
-    public void cycleSelectedGain() {
-        selectedGain = (selectedGain == Gain.F) ? Gain.P : Gain.F;
-    }
-
-    public String getSelectedWheelName() { return selectedWheel.name(); }
-    public String getSelectedGainName()  { return selectedGain.name(); }
-    public double getStepSize()          { return STEP_SIZES[stepIndex]; }
-
-    public void stepUp()   { stepIndex = Math.min(stepIndex + 1, STEP_SIZES.length - 1); }
-    public void stepDown() { stepIndex = Math.max(stepIndex - 1, 0); }
-
-    public void gainPlus() {
-        double s = STEP_SIZES[stepIndex];
-        if (selectedWheel == Wheel.BOTTOM) {
-            if (selectedGain == Gain.F) botF = Math.max(0.0, botF + s);
-            else                        botP = Math.max(0.0, botP + s);
-        } else {
-            if (selectedGain == Gain.F) topF = Math.max(0.0, topF + s);
-            else                        topP = Math.max(0.0, topP + s);
-        }
-        applyVelocityPIDF();
-        applyShooterVelocity();
-    }
-
-    public void gainMinus() {
-        double s = STEP_SIZES[stepIndex];
-        if (selectedWheel == Wheel.BOTTOM) {
-            if (selectedGain == Gain.F) botF = Math.max(0.0, botF - s);
-            else                        botP = Math.max(0.0, botP - s);
-        } else {
-            if (selectedGain == Gain.F) topF = Math.max(0.0, topF - s);
-            else                        topP = Math.max(0.0, topP - s);
-        }
-        applyVelocityPIDF();
-        applyShooterVelocity();
-    }
-
-    public double getBotP() { return botP; }
-    public double getBotF() { return botF; }
-    public double getTopP() { return topP; }
-    public double getTopF() { return topF; }
-
-    private void applyVelocityPIDF() {
-        PIDFCoefficients bot = new PIDFCoefficients(botP, botI, botD, botF);
-        PIDFCoefficients top = new PIDFCoefficients(topP, topI, topD, topF);
-
-        // bottom = motor1, top = motor2
-        shootingMotor1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, bot);
-        shootingMotor2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, top);
-    }
-    // -------------------------------------------------------------------------
 
     // ---- Percent tuning (BOTTOM only) ----
     public void increaseShooterPercent() {
@@ -140,8 +66,13 @@ public class IntakeShooting3 {
         applyShooterVelocity();
     }
 
-    public double getBottomPercent() { return bottomPercent; }
-    public double getTopPercent()    { return clamp01(bottomPercent * TOP_RATIO); }
+    public double getBottomPercent() {
+        return bottomPercent;
+    }
+
+    public double getTopPercent() {
+        return clamp01(bottomPercent * TOP_RATIO);
+    }
 
     private static double clamp01(double x) {
         if (x < 0.0) return 0.0;
@@ -154,22 +85,34 @@ public class IntakeShooting3 {
         applyShooterVelocity();
     }
 
-    public ShooterMode getShooterMode() { return shooterMode; }
+    public ShooterMode getShooterMode() {
+        return shooterMode;
+    }
 
     // Per-wheel targets/actuals for gating + telemetry
-    public double getBottomTargetTPS() { return getBottomPercent() * MAX_TPS; }
-    public double getTopTargetTPS()    { return getTopPercent() * MAX_TPS; }
+    public double getBottomTargetTPS() {
+        return getBottomPercent() * MAX_TPS;
+    }
 
-    public double getBottomActualTPS() { return Math.abs(shootingMotor1.getVelocity()); }
-    public double getTopActualTPS()    { return Math.abs(shootingMotor2.getVelocity()); }
+    public double getTopTargetTPS() {
+        return getTopPercent() * MAX_TPS;
+    }
+
+    public double getBottomActualTPS() {
+        return Math.abs(shootingMotor1.getVelocity());
+    }
+
+    public double getTopActualTPS() {
+        return Math.abs(shootingMotor2.getVelocity());
+    }
 
     private void applyShooterVelocity() {
         switch (shooterMode) {
-            case OFF:
+            case OFF: {
                 shootingMotor1.setVelocity(0);
                 shootingMotor2.setVelocity(0);
                 break;
-
+            }
             case FORWARD: {
                 double bottomTPS = getBottomTargetTPS();
                 double topTPS    = getTopTargetTPS();
@@ -179,7 +122,6 @@ public class IntakeShooting3 {
                 shootingMotor2.setVelocity(-topTPS);    // top motor2
                 break;
             }
-
             case REVERSE: {
                 double tps = REVERSE_PERCENT * MAX_TPS;
                 shootingMotor1.setVelocity(tps);
@@ -191,18 +133,26 @@ public class IntakeShooting3 {
 
     // ---------------- Intake / Servo control (split) ----------------
     // Gamepad1 wants intake ONLY (no servo)
-    public void intakeOnlyForward() { intakeMotor.setPower(-1.0); }
-    public void intakeOnlyReverse() { intakeMotor.setPower( 1.0); }
-    public void stopIntakeOnly()    { intakeMotor.setPower( 0.0); }
+    public void intakeOnlyForward() {
+        intakeMotor.setPower(-1.0);
+    }
+
+    public void intakeOnlyReverse() {
+        intakeMotor.setPower(1.0);
+    }
+
+    public void stopIntakeOnly() {
+        intakeMotor.setPower(0.0);
+    }
 
     // Gamepad2 shooting wants intake + servo together
     public void feedForward() {
         intakeMotor.setPower(-1.0);
-        servoRot.setPower( 1.0);
+        servoRot.setPower(1.0);
     }
 
     public void feedReverse() {
-        intakeMotor.setPower( 1.0);
+        intakeMotor.setPower(1.0);
         servoRot.setPower(-1.0);
     }
 
