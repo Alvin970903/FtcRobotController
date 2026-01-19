@@ -1,11 +1,17 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class StrafeDriving {
     public DcMotor frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor;
+    private IMU imu;
 
     public void init(HardwareMap hwMap){
         frontLeftMotor = hwMap.get(DcMotor.class, "front_left_motor");
@@ -18,41 +24,61 @@ public class StrafeDriving {
         frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        imu = hwMap.get(IMU.class, "imu");
+
+        RevHubOrientationOnRobot RevOrientation = new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
+        );
+
+        imu.initialize(new IMU.Parameters(RevOrientation));
     }
 
-    public void drive(double throttle, double spin, double strafe) {
+    public void drive(double forward, double strafe, double rotate) {
         // Mecanum drive math
-        double fl = throttle + spin + strafe;
-        double bl = throttle + spin - strafe;
-        double fr = throttle - spin - strafe;
-        double br = throttle - spin + strafe;
+        double fl = forward + strafe + rotate;
+        double bl = forward - strafe + rotate;
+        double fr = forward - strafe - rotate;
+        double br = forward + strafe - rotate;
 
-        // Normalize
-        double max = Math.max(1.0,
-                Math.max(Math.abs(fl),
-                        Math.max(Math.abs(bl),
-                                Math.max(Math.abs(fr), Math.abs(br)))));
+        double maxPower = 1.0;
 
-        fl /= max;
-        bl /= max;
-        fr /= max;
-        br /= max;
+        maxPower = Math.max(maxPower, Math.abs(fl));
+        maxPower = Math.max(maxPower, Math.abs(bl));
+        maxPower = Math.max(maxPower, Math.abs(fr));
+        maxPower = Math.max(maxPower, Math.abs(br));
 
-        frontLeftMotor.setPower(fl);
-        backLeftMotor.setPower(bl);
-        frontRightMotor.setPower(fr);
-        backRightMotor.setPower(br);
+
+        frontLeftMotor.setPower(fl / maxPower);
+        backLeftMotor.setPower(bl / maxPower);
+        frontRightMotor.setPower(fr / maxPower);
+        backRightMotor.setPower(br / maxPower);
+    }
+
+    public void driveFieldRelative(double forward, double strafe, double rotate){
+        double theta = Math.atan2(forward, strafe);
+        double r = Math.hypot(strafe, forward);
+
+        theta = AngleUnit.normalizeRadians(theta -
+                imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+
+        double newForward = r * Math.sin(theta);
+        double newStrafe = r * Math.cos(theta);
+
+        this.drive(newForward, newStrafe, rotate);
     }
 
     public void stop(){
-        drive(0, 0, 0);
+        driveFieldRelative(0, 0, 0);
+
     }
 
 }

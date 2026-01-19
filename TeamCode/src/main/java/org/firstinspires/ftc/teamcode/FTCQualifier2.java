@@ -14,6 +14,11 @@ public class FTCQualifier2 extends OpMode {
     private final StrafeDriving drive = new StrafeDriving();
     private final IntakeShooting4 shooting = new IntakeShooting4();
 
+    // Driving
+    double forward;
+    double strafe;
+    double rotate;
+
     // gamepad2 shooter toggles (tap)
     private boolean g2lbLast = false;
     private boolean g2rbLast = false;
@@ -33,8 +38,8 @@ public class FTCQualifier2 extends OpMode {
     private final ElapsedTime spinTimer = new ElapsedTime();
     private static final double MIN_SPINUP_TIME_SEC = 0.30;
 
-    private static final double LOW_RATIO  = 0.95;
-    private static final double HIGH_RATIO = 1.10;
+    private static final double LOW_RATIO  = 0.92;
+    private static final double HIGH_RATIO = 1.12;
     private static final double SETTLE_SEC = 0.15;
 
     private final ElapsedTime settleTimer = new ElapsedTime();
@@ -49,12 +54,12 @@ public class FTCQualifier2 extends OpMode {
     @Override
     public void loop() {
         // ---------------- Driving ----------------
-        double throttle = gamepad1.left_stick_y;
-        double spin     = -gamepad1.right_stick_x;
-        double strafe   = -gamepad1.left_stick_x;
+        forward = -gamepad1.left_stick_y;
+        strafe = gamepad1.left_stick_x;
+        rotate = gamepad1.right_stick_x;
 
-        spin *= 0.3;
-        drive.drive(throttle, spin, strafe);
+        rotate *= 0.7;
+        drive.drive(forward, strafe, rotate);
 
         // ---------------- gamepad2 shot mode toggle ----------------
         boolean backNow = gamepad2.back;
