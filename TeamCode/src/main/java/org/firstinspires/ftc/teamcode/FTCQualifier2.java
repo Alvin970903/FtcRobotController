@@ -53,7 +53,7 @@ public class FTCQualifier2 extends OpMode {
 
     @Override
     public void loop() {
-        // ---------------- Driving ----------------
+        // Driving
         forward = -gamepad1.left_stick_y;
         strafe = gamepad1.left_stick_x;
         rotate = gamepad1.right_stick_x;
@@ -61,14 +61,14 @@ public class FTCQualifier2 extends OpMode {
         rotate *= 0.7;
         drive.drive(forward, strafe, rotate);
 
-        // ---------------- gamepad2 shot mode toggle ----------------
+        // gamepad2 shot mode toggle
         boolean backNow = gamepad2.back;
         if (backNow && !backLast) {
             shooting.toggleShotMode();
         }
         backLast = backNow;
 
-        // ---------------- gamepad2 shooter toggles ----------------
+        //  gamepad2 shooter toggles
         boolean g2lbNow = gamepad2.left_bumper;   // LB = reverse unjam toggle
         boolean g2rbNow = gamepad2.right_bumper;  // RB = forward shoot toggle
 
@@ -102,7 +102,7 @@ public class FTCQualifier2 extends OpMode {
         else if (reverseOn) shooting.setShooterMode(IntakeShooting4.ShooterMode.REVERSE);
         else shooting.setShooterMode(IntakeShooting4.ShooterMode.OFF);
 
-        // ---------------- Shooter feeding control ----------------
+        // Shooter feeding control
         boolean shooterFeedingThisLoop = false;
 
         if (shooting.getShooterMode() == IntakeShooting4.ShooterMode.FORWARD) {
@@ -147,7 +147,7 @@ public class FTCQualifier2 extends OpMode {
             shooting.stopFeed();
         }
 
-        // ---------------- gamepad1 intake-only TOGGLE ----------------
+        // gamepad1 intake-only TOGGLE
         if (!shooterFeedingThisLoop) {
             boolean g1lbNow = gamepad1.left_bumper;
             boolean g1rbNow = gamepad1.right_bumper;
@@ -172,7 +172,7 @@ public class FTCQualifier2 extends OpMode {
             g1rbLast = g1rbNow;
         }
 
-        // ---------------- Telemetry ----------------
+        // Telemetry
         telemetry.addData("ShotMode", shooting.getShotMode());
         telemetry.addData("ShooterMode", shooting.getShooterMode());
         telemetry.addData("IntakeOnly", g1IntakeForwardOn ? "FORWARD" : (g1IntakeReverseOn ? "REVERSE" : "OFF"));
@@ -183,8 +183,8 @@ public class FTCQualifier2 extends OpMode {
         telemetry.addData("Bottom flywheel TPS", "%.0f / %.0f", shooting.getBottomActualTPS(), shooting.getBottomTargetTPS());
         telemetry.addData("Top flywheel TPS", "%.0f / %.0f", shooting.getTopActualTPS(), shooting.getTopTargetTPS());
 
-        telemetry.addData("PIDF Bottom (P/F)", "%.1f / %.1f", shooting.getBotP(), shooting.getBotF());
-        telemetry.addData("PIDF Top (P/F)", "%.1f / %.1f", shooting.getTopP(), shooting.getTopF());
+        //telemetry.addData("PIDF Bottom (P/F)", "%.1f / %.1f", shooting.getBotP(), shooting.getBotF());
+        //telemetry.addData("PIDF Top (P/F)", "%.1f / %.1f", shooting.getTopP(), shooting.getTopF());
 
         //telemetry.addData("SpinTime", "%.2f", spinTimer.seconds());
         //telemetry.addData("SettleTime", "%.2f", settleTimer.seconds());

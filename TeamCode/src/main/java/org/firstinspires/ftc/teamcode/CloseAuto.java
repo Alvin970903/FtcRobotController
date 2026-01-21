@@ -15,8 +15,8 @@ public class CloseAuto extends LinearOpMode {
 
     // Same gating constants as your TeleOp
     private static final double MIN_SPINUP_TIME_SEC = 0.30;
-    private static final double LOW_RATIO  = 0.95;
-    private static final double HIGH_RATIO = 1.10;
+    private static final double LOW_RATIO  = 0.93;
+    private static final double HIGH_RATIO = 1.12;
     private static final double SETTLE_SEC = 0.25;
 
     // Auto tuning constants

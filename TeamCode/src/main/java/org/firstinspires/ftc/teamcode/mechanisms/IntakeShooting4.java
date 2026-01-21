@@ -13,8 +13,6 @@ public class IntakeShooting4 {
     public enum ShooterMode { OFF, FORWARD, REVERSE }
     public enum ShotMode   { CLOSE, FAR }
 
-    // bottom flywheel = shooting_motor_1
-    // top flywheel    = shooting_motor_2
     private DcMotorEx bottomMotor; // shooting_motor_1
     private DcMotorEx topMotor;    // shooting_motor_2
 
@@ -53,7 +51,7 @@ public class IntakeShooting4 {
         topMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        // Keep if needed so wheels spin the same physical direction
+
         topMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         bottomMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -64,7 +62,7 @@ public class IntakeShooting4 {
         stopAll();
     }
 
-    // ---------------- Shot modes ----------------
+    //  Shot modes
     public void toggleShotMode() {
         applyShotMode(shotMode == ShotMode.CLOSE ? ShotMode.FAR : ShotMode.CLOSE);
     }
@@ -119,12 +117,14 @@ public class IntakeShooting4 {
         topMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, top);
     }
 
-    // ---------------- Shooter control ----------------
+    // Shooter control
     public void setShooterMode(ShooterMode mode) {
         shooterMode = mode;
         applyShooterVelocity();
     }
 
+
+    // getter methods
     public ShooterMode getShooterMode() { return shooterMode; }
 
     public double getBottomTargetTPS() { return bottomPercent * MAX_TPS; }
@@ -159,20 +159,20 @@ public class IntakeShooting4 {
         }
     }
 
-    // ---------------- Intake / Servo control (split) ----------------
+    // Intake / Servo control (split)
     // Gamepad1: intake ONLY (no servo)
     public void intakeOnlyForward() { intakeMotor.setPower(-1.0); }
-    public void intakeOnlyReverse() { intakeMotor.setPower( 1.0); }
-    public void stopIntakeOnly()    { intakeMotor.setPower( 0.0); }
+    public void intakeOnlyReverse() { intakeMotor.setPower(1.0); }
+    public void stopIntakeOnly()    { intakeMotor.setPower(0.0); }
 
     // Shooting feed: intake + servo together
     public void feedForward() {
         intakeMotor.setPower(-1.0);
-        servoRot.setPower( 1.0);
+        servoRot.setPower(1.0);
     }
 
     public void feedReverse() {
-        intakeMotor.setPower( 1.0);
+        intakeMotor.setPower(1.0);
         servoRot.setPower(-1.0);
     }
 
