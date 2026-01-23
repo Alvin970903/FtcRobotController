@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -43,19 +42,16 @@ public class StrafeDriving {
     }
 
     public void drive(double forward, double strafe, double rotate) {
-        // Mecanum drive math
         double fl = forward + strafe + rotate;
         double bl = forward - strafe + rotate;
         double fr = forward - strafe - rotate;
         double br = forward + strafe - rotate;
 
         double maxPower = 1.0;
-
         maxPower = Math.max(maxPower, Math.abs(fl));
         maxPower = Math.max(maxPower, Math.abs(bl));
         maxPower = Math.max(maxPower, Math.abs(fr));
         maxPower = Math.max(maxPower, Math.abs(br));
-
 
         frontLeftMotor.setPower(fl / maxPower);
         backLeftMotor.setPower(bl / maxPower);
@@ -76,9 +72,28 @@ public class StrafeDriving {
         this.drive(newForward, newStrafe, rotate);
     }
 
-    public void stop(){
-        driveFieldRelative(0, 0, 0);
-
+    public double getYawRadians() {
+        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
     }
 
+    // Heading-hold: tries to keep current yaw == targetYaw while driving forward/strafe
+    public void driveHoldHeading(double forward, double strafe, double targetYawRad,
+                                 double kP, double maxRotate) {
+        double yaw = getYawRadians();
+
+        // shortest-angle error in radians
+        double err = AngleUnit.normalizeRadians(targetYawRad - yaw);
+
+        double rotate = kP * err;
+
+        // clamp rotate so it doesn't go crazy
+        if (rotate > maxRotate) rotate = maxRotate;
+        if (rotate < -maxRotate) rotate = -maxRotate;
+
+        drive(forward, strafe, rotate);
+    }
+
+    public void stop(){
+        drive(0, 0, 0);
+    }
 }

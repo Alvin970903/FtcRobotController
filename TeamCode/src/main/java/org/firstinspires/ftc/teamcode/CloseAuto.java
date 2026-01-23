@@ -20,7 +20,7 @@ public class CloseAuto extends LinearOpMode {
     private static final double SETTLE_SEC = 0.25;
 
     // Auto tuning constants
-    private static final double DRIVE_TO_SHOT_SEC = 1.27;
+    private static final double DRIVE_TO_SHOT_SEC = 1.2;
     private static final double DRIVE_TO_SHOT_POWER = 0.35;
 
     // NEW: run "RB behavior" for this long total (spin + settle + feed)
@@ -50,7 +50,7 @@ public class CloseAuto extends LinearOpMode {
         if (isStopRequested()) return;
 
         // 1) Drive to shooting pose
-        drive.drive(-DRIVE_TO_SHOT_POWER, 0, 0);
+        drive.drive(DRIVE_TO_SHOT_POWER, 0, 0);
         sleep((long)(DRIVE_TO_SHOT_SEC * 1000));
         drive.stop();
 
@@ -115,12 +115,14 @@ public class CloseAuto extends LinearOpMode {
         shooting.setShooterMode(IntakeShooting4.ShooterMode.OFF);
 
         // 3) Back up
-        drive.drive(BACK_UP_POWER, 0, 0);
+        drive.drive(-BACK_UP_POWER, 0, 0);
         sleep((long)(BACK_UP_SEC * 1000));
         drive.stop();
 
+        sleep((long)(1000));
+
         // 4) Strafe
-        drive.drive(0, 0, STRAFE_POWER);
+        drive.drive(0, -STRAFE_POWER, 0);
         sleep((long)(STRAFE_SEC * 1000));
         drive.stop();
 

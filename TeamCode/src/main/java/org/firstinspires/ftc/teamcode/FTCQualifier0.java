@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.IntakeShooting4;
 import org.firstinspires.ftc.teamcode.mechanisms.StrafeDriving;
 
 @TeleOp
-public class FTCQualifier2 extends OpMode {
+public class FTCQualifier0 extends OpMode {
 
     private final StrafeDriving drive = new StrafeDriving();
     private final IntakeShooting4 shooting = new IntakeShooting4();
@@ -34,7 +34,12 @@ public class FTCQualifier2 extends OpMode {
     private boolean g1IntakeForwardOn = false;
     private boolean g1IntakeReverseOn = false;
 
-    // spin-up + settle gating
+    // ===================== CHANGED/ADDED: servo-only reverse toggle state =====================
+    private boolean g2aLast = false;
+    private boolean servoReverseOn = false;
+    // ==========================================================================================
+
+    // spin-up + settle gating (simple, no separate ratios)
     private final ElapsedTime spinTimer = new ElapsedTime();
     private static final double MIN_SPINUP_TIME_SEC = 0.30;
 
@@ -85,7 +90,12 @@ public class FTCQualifier2 extends OpMode {
                 // Cancel gamepad1 intake toggles so preloading can't accidentally feed
                 g1IntakeForwardOn = false;
                 g1IntakeReverseOn = false;
-                shooting.stopFeed();
+                shooting.stopIntakeOnly();
+                shooting.servoStop();
+
+                // ===================== CHANGED/ADDED: cancel servo-only when shooter starts =====================
+                servoReverseOn = false;
+                // ===============================================================================================
             }
         }
 
@@ -142,7 +152,7 @@ public class FTCQualifier2 extends OpMode {
 
         } else if (shooting.getShooterMode() == IntakeShooting4.ShooterMode.REVERSE) {
             shooting.feedReverse(); // immediate unjam feed
-            //shooterFeedingThisLoop = true;
+            shooterFeedingThisLoop = true;
         } else {
             shooting.stopFeed();
         }
@@ -172,7 +182,31 @@ public class FTCQualifier2 extends OpMode {
             g1rbLast = g1rbNow;
         }
 
+        // servo only toggle
 
+        // ===================== CHANGED/ADDED: servo-only reverse toggle (gamepad2.a) =====================
+        boolean g2aNow = gamepad2.a;
+
+        // Only allow servo-only when shooter is OFF and not feeding
+        boolean allowServoOnly =
+                (!shooterFeedingThisLoop) &&
+                        (shooting.getShooterMode() == IntakeShooting4.ShooterMode.OFF);
+
+        if (allowServoOnly) {
+            // Tap A toggles reverse servo
+            if (g2aNow && !g2aLast) {
+                servoReverseOn = !servoReverseOn;
+            }
+
+            if (servoReverseOn) shooting.reverseServo();
+            else shooting.servoStop();
+        } else {
+            // Prevent servo-only from fighting shooter feed / unjam
+            servoReverseOn = false;
+        }
+
+        g2aLast = g2aNow;
+        // ================================================================================================
 
         // Telemetry
         telemetry.addData("ShotMode", shooting.getShotMode());
@@ -185,11 +219,6 @@ public class FTCQualifier2 extends OpMode {
         telemetry.addData("Bottom flywheel TPS", "%.0f / %.0f", shooting.getBottomActualTPS(), shooting.getBottomTargetTPS());
         telemetry.addData("Top flywheel TPS", "%.0f / %.0f", shooting.getTopActualTPS(), shooting.getTopTargetTPS());
 
-        //telemetry.addData("PIDF Bottom (P/F)", "%.1f / %.1f", shooting.getBotP(), shooting.getBotF());
-        //telemetry.addData("PIDF Top (P/F)", "%.1f / %.1f", shooting.getTopP(), shooting.getTopF());
-
-        //telemetry.addData("SpinTime", "%.2f", spinTimer.seconds());
-        //telemetry.addData("SettleTime", "%.2f", settleTimer.seconds());
         telemetry.update();
     }
 }

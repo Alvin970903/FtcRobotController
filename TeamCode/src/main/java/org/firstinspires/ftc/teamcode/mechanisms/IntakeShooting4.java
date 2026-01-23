@@ -1,4 +1,3 @@
-// IntakeShooting4.java
 package org.firstinspires.ftc.teamcode.mechanisms;
 
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -19,16 +18,15 @@ public class IntakeShooting4 {
     private DcMotor intakeMotor;
     private CRServo servoRot;
 
-    // Encoder constants (your assumption)
+    // Encoder constants
     private static final double TICKS_PER_REV = 28.0;
     private static final double MAX_RPM = 6000.0;
     private static final double MAX_TPS = (MAX_RPM / 60.0) * TICKS_PER_REV;
 
-    // Top wheel is a fixed ratio of bottom (keep your current style)
     private static final double TOP_RATIO = 0.65;
 
     // Reverse fixed (unjam)
-    private static final double REVERSE_PERCENT = 0.10;
+    private static final double REVERSE_PERCENT = 0.25;
 
     // Current state
     private ShooterMode shooterMode = ShooterMode.OFF;
@@ -172,13 +170,20 @@ public class IntakeShooting4 {
     }
 
     public void feedReverse() {
-        intakeMotor.setPower(1.0);
+        //intakeMotor.setPower(0.0);
         servoRot.setPower(-1.0);
     }
 
     public void stopFeed() {
         intakeMotor.setPower(0.0);
         servoRot.setPower(0.0);
+    }
+    // reverse servo only
+    public void reverseServo(){
+        servoRot.setPower(-1.0);
+    }
+    public void servoStop(){
+        servoRot.setPower(0);
     }
 
     public void stopAll() {
