@@ -8,8 +8,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.IntakeShooting4;
 import org.firstinspires.ftc.teamcode.mechanisms.StrafeDriving;
 
 @Autonomous
-public class CloseAutoRed extends LinearOpMode {
-
+public class FarAutoRed extends LinearOpMode {
     private final StrafeDriving drive = new StrafeDriving();
     private final IntakeShooting4 shooting = new IntakeShooting4();
 
@@ -18,16 +17,6 @@ public class CloseAutoRed extends LinearOpMode {
     private static final double LOW_RATIO  = 0.93;
     private static final double HIGH_RATIO = 1.12;
     private static final double SETTLE_SEC = 0.25;
-
-    // Drive
-    private static final double DRIVE_TO_SHOT_SEC = 1.2;
-    private static final double DRIVE_TO_SHOT_POWER = 0.35;
-
-    private static final double BACK_UP_SEC   = 0.55;
-    private static final double BACK_UP_POWER = 0.30;
-
-    private static final double STRAFE_SEC   = 0.65;
-    private static final double STRAFE_POWER = 0.40;
 
     // Shooting timing
     private static final double FIRST_FEED_SEC = 4.0;
@@ -40,11 +29,11 @@ public class CloseAutoRed extends LinearOpMode {
     private static final double MAX_ROTATE = 0.35;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode(){
         drive.init(hardwareMap);
         shooting.init(hardwareMap);
 
-        shooting.applyShotMode(IntakeShooting4.ShotMode.CLOSE);
+        shooting.applyShotMode(IntakeShooting4.ShotMode.FAR);
         shooting.stopAll();
 
         telemetry.addLine("Ready: preload 3, aim robot, press START");
@@ -53,18 +42,10 @@ public class CloseAutoRed extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        // Lock heading immediately
         sleep(100);
         double targetYaw = drive.getYawRadians();
 
-        // 1. Drive to shooting pose
-        drive.drive(DRIVE_TO_SHOT_POWER, 0, 0);
-        sleep((long)(DRIVE_TO_SHOT_SEC * 1000));
-        drive.stop();
-
-        sleep(150);
-
-        // 2. Shooter ON
+        // 1. Shooter ON
         shooting.setShooterMode(IntakeShooting4.ShooterMode.FORWARD);
 
         ElapsedTime spinTimer = new ElapsedTime();
@@ -76,7 +57,7 @@ public class CloseAutoRed extends LinearOpMode {
         spinTimer.reset();
         settleTimer.reset();
 
-        // 3. First 4 seconds — normal gated shooting
+        // 2. First 4 seconds — normal gated shooting
         timer.reset();
         while (opModeIsActive() && timer.seconds() < FIRST_FEED_SEC) {
             drive.driveHoldHeading(0, 0, targetYaw, HEADING_KP, MAX_ROTATE);
@@ -162,25 +143,9 @@ public class CloseAutoRed extends LinearOpMode {
 
         sleep(100);
 
-        // 5. Back up
 
-        timer.reset();
-        while (opModeIsActive() && timer.seconds() < BACK_UP_SEC) {
-            drive.driveHoldHeading(-BACK_UP_POWER, 0, targetYaw, HEADING_KP, MAX_ROTATE);
-            idle();
-        }
-        drive.stop();
+        // Turn and Move
 
-        sleep(300);
 
-        // 6. Strafe
-        timer.reset();
-        while (opModeIsActive() && timer.seconds() < STRAFE_SEC) {
-            drive.driveHoldHeading(0, STRAFE_POWER, targetYaw, HEADING_KP, MAX_ROTATE);
-            idle();
-        }
-        drive.stop();
-
-        shooting.stopAll();
     }
 }
