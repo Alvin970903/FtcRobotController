@@ -145,7 +145,14 @@ public class FarAutoRed extends LinearOpMode {
 
 
         // Turn and Move
+        drive.drive(-0.1, 0, 0);
+        sleep(100);
+        drive.drive(0, 0, -0.2);
+        sleep(200);
+        drive.drive(-0.3, 0, 0);
+        sleep(400);
 
-
+        drive.stop();
+        shooting.stopAll();
     }
 }
