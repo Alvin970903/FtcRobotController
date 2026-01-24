@@ -26,7 +26,7 @@ public class CloseAutoRed extends LinearOpMode {
     private static final double BACK_UP_SEC   = 0.8;
     private static final double BACK_UP_POWER = 0.30;
 
-    private static final double STRAFE_SEC   = 0.3;
+    private static final double STRAFE_SEC   = 0.4;
     private static final double STRAFE_POWER = 0.40;
 
     // Shooting timing
@@ -172,7 +172,7 @@ public class CloseAutoRed extends LinearOpMode {
         sleep(300);
 
         // 6. Strafe
-        drive.drive(0, -STRAFE_POWER, 0);
+        drive.drive(0, STRAFE_POWER, 0);
         sleep((long)(STRAFE_SEC * 1000));
         drive.stop();
 
