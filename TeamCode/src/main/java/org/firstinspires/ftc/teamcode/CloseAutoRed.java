@@ -23,10 +23,10 @@ public class CloseAutoRed extends LinearOpMode {
     private static final double DRIVE_TO_SHOT_SEC = 1.2;
     private static final double DRIVE_TO_SHOT_POWER = 0.35;
 
-    private static final double BACK_UP_SEC   = 0.55;
+    private static final double BACK_UP_SEC   = 0.8;
     private static final double BACK_UP_POWER = 0.30;
 
-    private static final double STRAFE_SEC   = 0.65;
+    private static final double STRAFE_SEC   = 0.3;
     private static final double STRAFE_POWER = 0.40;
 
     // Shooting timing
@@ -55,7 +55,7 @@ public class CloseAutoRed extends LinearOpMode {
 
         // Lock heading immediately
         sleep(100);
-        double targetYaw = drive.getYawRadians();
+        //double targetYaw = drive.getYawRadians();
 
         // 1. Drive to shooting pose
         drive.drive(DRIVE_TO_SHOT_POWER, 0, 0);
@@ -79,7 +79,7 @@ public class CloseAutoRed extends LinearOpMode {
         // 3. First 4 seconds — normal gated shooting
         timer.reset();
         while (opModeIsActive() && timer.seconds() < FIRST_FEED_SEC) {
-            drive.driveHoldHeading(0, 0, targetYaw, HEADING_KP, MAX_ROTATE);
+            //drive.driveHoldHeading(0, 0, targetYaw, HEADING_KP, MAX_ROTATE);
 
             boolean timeReady = spinTimer.seconds() >= MIN_SPINUP_TIME_SEC;
 
@@ -125,7 +125,7 @@ public class CloseAutoRed extends LinearOpMode {
 
             timer.reset();
             while (opModeIsActive() && timer.seconds() < BURST_SEC) {
-                drive.driveHoldHeading(0, 0, targetYaw, HEADING_KP, MAX_ROTATE);
+                //drive.driveHoldHeading(0, 0, targetYaw, HEADING_KP, MAX_ROTATE);
 
                 boolean timeReady = spinTimer.seconds() >= MIN_SPINUP_TIME_SEC;
 
@@ -163,22 +163,17 @@ public class CloseAutoRed extends LinearOpMode {
         sleep(100);
 
         // 5. Back up
-
-        timer.reset();
-        while (opModeIsActive() && timer.seconds() < BACK_UP_SEC) {
-            drive.driveHoldHeading(-BACK_UP_POWER, 0, targetYaw, HEADING_KP, MAX_ROTATE);
-            idle();
-        }
+        drive.drive(-BACK_UP_POWER, 0, 0);
+        sleep((long)(BACK_UP_SEC * 1000));
         drive.stop();
+
+        sleep((long)(1000));
 
         sleep(300);
 
         // 6. Strafe
-        timer.reset();
-        while (opModeIsActive() && timer.seconds() < STRAFE_SEC) {
-            drive.driveHoldHeading(0, STRAFE_POWER, targetYaw, HEADING_KP, MAX_ROTATE);
-            idle();
-        }
+        drive.drive(0, -STRAFE_POWER, 0);
+        sleep((long)(STRAFE_SEC * 1000));
         drive.stop();
 
         shooting.stopAll();

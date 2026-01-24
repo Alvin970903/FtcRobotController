@@ -160,12 +160,12 @@ public class IntakeShooting4 {
     // Intake / Servo control (split)
     // Gamepad1: intake ONLY (no servo)
     public void intakeOnlyForward() { intakeMotor.setPower(-1.0); }
-    public void intakeOnlyReverse() { intakeMotor.setPower(0.5); }
+    public void intakeOnlyReverse() { intakeMotor.setPower(1.0); }
     public void stopIntakeOnly()    { intakeMotor.setPower(0.0); }
 
     // Shooting feed: intake + servo together
     public void feedForward() {
-        intakeMotor.setPower(-0.5);
+        intakeMotor.setPower(-1.0);
         servoRot.setPower(1.0);
     }
 

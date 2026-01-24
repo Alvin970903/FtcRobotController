@@ -27,10 +27,10 @@ public class CloseAuto extends LinearOpMode {
     private static final double SHOOT_TOTAL_SEC = 10.0;
 
     // Back up + strafe after shooting
-    private static final double BACK_UP_SEC   = 0.55;
+    private static final double BACK_UP_SEC   = 0.8;
     private static final double BACK_UP_POWER = 0.30;
 
-    private static final double STRAFE_SEC   = 0.65;
+    private static final double STRAFE_SEC   = 0.4;
     private static final double STRAFE_POWER = -0.40;
 
     @Override

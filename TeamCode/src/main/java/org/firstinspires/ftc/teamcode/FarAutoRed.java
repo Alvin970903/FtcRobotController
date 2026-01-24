@@ -43,7 +43,7 @@ public class FarAutoRed extends LinearOpMode {
         if (isStopRequested()) return;
 
         sleep(100);
-        double targetYaw = drive.getYawRadians();
+        //double targetYaw = drive.getYawRadians();
 
         // 1. Shooter ON
         shooting.setShooterMode(IntakeShooting4.ShooterMode.FORWARD);
@@ -60,7 +60,7 @@ public class FarAutoRed extends LinearOpMode {
         // 2. First 4 seconds — normal gated shooting
         timer.reset();
         while (opModeIsActive() && timer.seconds() < FIRST_FEED_SEC) {
-            drive.driveHoldHeading(0, 0, targetYaw, HEADING_KP, MAX_ROTATE);
+            //drive.driveHoldHeading(0, 0, targetYaw, HEADING_KP, MAX_ROTATE);
 
             boolean timeReady = spinTimer.seconds() >= MIN_SPINUP_TIME_SEC;
 
@@ -106,7 +106,7 @@ public class FarAutoRed extends LinearOpMode {
 
             timer.reset();
             while (opModeIsActive() && timer.seconds() < BURST_SEC) {
-                drive.driveHoldHeading(0, 0, targetYaw, HEADING_KP, MAX_ROTATE);
+                //drive.driveHoldHeading(0, 0, targetYaw, HEADING_KP, MAX_ROTATE);
 
                 boolean timeReady = spinTimer.seconds() >= MIN_SPINUP_TIME_SEC;
 
